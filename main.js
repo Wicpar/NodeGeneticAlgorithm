@@ -2,7 +2,7 @@
  * Created by Frederic Nieto on 06/09/2016.
  */
 
-var possibleChars = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRTUVWXYZ0123456789\\"'{}()[]+-*/|^&><?:. `;
+var possibleChars = `n0123456789\\"'{}()[]+-*/|^&><?:. `;
 var fn = new Function("return 'lol'");
 var x = fn();
 console.log(x);
@@ -78,7 +78,7 @@ function testString(str) {
 
 function test100(fn) {
     var ret;
-    for (var i = 1; i < 10000000; i *= 10) {
+    for (var i = 1; i < 100000; i *= 10) {
         var res = fn(i);
         var diff = Math.abs(Math.pow(res, 3) - i);
         if (ret)
@@ -93,7 +93,7 @@ function testAlgorithm(fn, testValue, diffFn) {
     return diffFn(fn(testValue));
 }
 var generation = 0;
-for (var i = 0; i < 10000; ++i) {
+for (var i = 0; i < 1000000; ++i) {
     oneGeneration();
     generation = (generation || 0) + 1;
     console.log("generation: " + generation + '\n');
