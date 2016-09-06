@@ -2,7 +2,7 @@
  * Created by Frederic Nieto on 06/09/2016.
  */
 
-var possibleChars = `n0123456789\\"'{}()[]+-*/|^&><?:. `;
+var possibleChars = `n0123456789()+-*/|^&><.`;
 var fn = new Function("return 'lol'");
 var x = fn();
 console.log(x);
