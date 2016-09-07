@@ -2,13 +2,13 @@
  * Created by Frederic Nieto on 06/09/2016.
  */
 
-var possibleChars = `n0123456789()+-*/|^&><.`;
+var possibleChars = `n0123456789()!|^&. +-*/%`;
 var fn = new Function("return 'lol'");
 var x = fn();
 console.log(x);
 var strs = [{
-    str: `return n;
-`, val: testString(`return n;`)
+    str: `return n
+`, val: testString(`return n`)
 }];
 
 console.log("original: " + strs[0].val);
@@ -17,7 +17,7 @@ function oneGeneration() {
     var newstrs = [];
     strs.forEach((str) => {
         newstrs.push(str);
-        var newstr = tryMutate(str.str);
+        var newstr = tryMutate(str.str, str.val);
         var res;
         try {
             res = testString(newstr);
@@ -29,19 +29,23 @@ function oneGeneration() {
         newstrs.push({str: newstr, val: res});
     });
     if (newstrs.length > 100) {
-        newstrs = newstrs.reverse().sort((a, b) => (a.val - b.val) ? (a.val - b.val) : (a.size - b.size)).slice(0, 100);
+        if (strs[0].val){
+            newstrs = newstrs.reverse().sort((a, b) => (a.val - b.val)).slice(0, 100);
+        } else {
+            newstrs = newstrs.reverse().sort((a, b) => (a.val - b.val) || (a.str.length - b.str.length)).slice(0, 100);
+        }
     }
     strs = newstrs;
 }
 
 var iter = 0;
 
-function tryMutate(str) {
+function tryMutate(str, originVal) {
     while (true) {
         var mutated = mutate(str);
         try {
             var ret = (new Function("n", mutated))(1);
-            if (!ret || typeof ret != 'number' || mutated == str) {
+            if (!ret || typeof ret != 'number' || mutated == str || ret == originVal || mutated.lastIndexOf('n') < 6) {
                 throw new EventException();
             }
             //console.log(ret);
@@ -59,13 +63,12 @@ function tryMutate(str) {
 
 function mutate(str) {
     var a = str.split("");
-    for (var i = 0; i < Math.floor(Math.random() * 30); ++i) {
+    for (var i = 0; i < Math.floor(Math.random() * 10); ++i) {
         a[Math.floor(Math.random() * a.length)] = "";
     }
-    for (var i = 0; i < Math.floor(Math.random() * 5); ++i) {
+    for (var i = 0; i < Math.floor(Math.random() * 10); ++i) {
         var newint = possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
-        var newint2 = possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
-        a[Math.floor(Math.random() * a.length)] += newint+newint2;
+        a[Math.floor(Math.random() * a.length)] += newint;
     }
     return a.join("").replace(/\/\//g, "").replace(/\/\//g, "");
 }
@@ -77,16 +80,12 @@ function testString(str) {
 }
 
 function test100(fn) {
-    var ret;
-    for (var i = 1; i < 100000; i *= 10) {
+    var ret = 0;
+    for (var i = -50; i < 50; i++) {
         var res = fn(i);
-        var diff = Math.abs(Math.pow(res, 3) - i);
-        if (ret)
-            ret = Math.max(ret, diff);
-        else
-            ret = diff;
+        ret += (res === (i & 1));
     }
-    return ret;
+    return Math.min(100-ret, 50);
 }
 
 function testAlgorithm(fn, testValue, diffFn) {
