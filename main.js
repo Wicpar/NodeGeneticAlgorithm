@@ -29,8 +29,8 @@ function oneGeneration() {
         newstrs.push({str: newstr, val: res});
     });
     if (newstrs.length > 100) {
-        if (strs[0].val){
-            newstrs = newstrs.reverse().sort((a, b) => (a.val - b.val)).slice(0, 100);
+        if (strs[0].val) {
+            newstrs = newstrs.reverse().sort((a, b) => (a.val - b.val) || (a.str.length - b.str.length)).slice(0, 100);
         } else {
             newstrs = newstrs.reverse().sort((a, b) => (a.val - b.val) || (a.str.length - b.str.length)).slice(0, 100);
         }
@@ -63,14 +63,14 @@ function tryMutate(str, originVal) {
 
 function mutate(str) {
     var a = str.split("");
-    for (var i = 0; i < Math.floor(Math.random() * 10); ++i) {
+    for (var i = 0; i < Math.floor(Math.random() * (possibleChars.length - 6)); ++i) {
         a[Math.floor(Math.random() * a.length)] = "";
     }
-    for (var i = 0; i < Math.floor(Math.random() * 10); ++i) {
+    for (var i = 0; i < Math.floor(Math.random() * (possibleChars.length - 6)); ++i) {
         var newint = possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
         a[Math.floor(Math.random() * a.length)] += newint;
     }
-    return a.join("").replace(/\/\//g, "").replace(/\/\//g, "");
+    return a.join("").replace(/\/\//g, "").replace(/\/\//g, "").replace(/\/\*/g, "");
 }
 
 
@@ -83,9 +83,15 @@ function test100(fn) {
     var ret = 0;
     for (var i = -50; i < 50; i++) {
         var res = fn(i);
-        ret += (res === (i & 1));
+        var target = (i * i * i * i);
+        var toAdd = Math.abs(Math.abs(target) - Math.abs(res));
+        toAdd += (target != res);
+        if (isNaN(toAdd))
+            ret += 10000000000;
+        else
+            ret += toAdd;
     }
-    return Math.min(100-ret, 50);
+    return ret;
 }
 
 function testAlgorithm(fn, testValue, diffFn) {
